@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>甲陵高校科学部</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;500;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+    <style>
+        body {
+            font-family: 'Noto Serif JP', serif;
+            background-color: #ffffff;
+            color: #333;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 80px 20px;
+            line-height: 2.0;
+        }
+        .container { max-width: 650px; width: 100%; }
+        header { text-align: center; margin-bottom: 80px; }
+        .card {
+            background: #fff;
+            padding: 60px 40px;
+            margin-bottom: 50px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1.2s ease-out;
+        }
+        .card.show { opacity: 1; transform: translateY(0); }
+        .number { font-size: 4.5rem; margin: 10px 0; font-weight: 700; }
+        .status { font-size: 0.8rem; color: #007bff; }
+        footer { margin-top: 100px; font-size: 0.75rem; color: #ccc; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>甲陵科学部</h1>
+        <p class="subtitle">Koryo Science Club</p>
+    </header>
+
+    <section class="card">
+        <div style="font-size:0.7rem; color:#aaa;">Visitor No.</div>
+        <div id="counter" class="number">000</div>
+        <div id="status" class="status">訪問者数を同期中...</div>
+    </section>
+
+    <section class="card">
+        <h3>なぜ、QRコードを読み込んだ？</h3>
+        <p>「ちょっと気になったから」？<br>部員も、始まりは同じでした。</p>
+        <div style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">良かったら、のぞいてみてください。</div>
+        <p style="font-weight: 500; border-bottom: 1px solid #333; display: inline-block;">ここは好奇心を広げられる場所。</p>
+    </section>
+
+    <section class="card">
+        <div style="font-size: 0.75rem; color: #888; margin-bottom: 5px;">2026年度</div>
+        <h2 style="font-size: 1.8rem; margin-top: 0; letter-spacing: 0.1em;">甲陵高校 科学部</h2>
+        <p style="font-size: 0.9rem; color: #666;">活動場所：特別棟3階 物理室</p>
+        <p style="font-size: 0.9rem; color: #666;">活動日：隔週水、木曜日</p>
+        <hr style="border: 0; border-top: 1px solid #eee; width: 50px; margin: 30px auto;">
+        <p style="font-size: 0.95rem; text-align: left; max-width: 500px; margin: 0 auto; line-height: 2.2;">
+            年間目標「月一爆発」をモットーに日々活動しています。昨年度は国立天文台野辺山やイタリアOAR-PAF天文台での観測実習、星見まどかさんによる講演会や化学実験を行いました。
+        </p>
+        <p style="font-size: 0.95rem; text-align: left; max-width: 500px; margin: 0 auto; line-height: 2.2;">
+            科学部はいつでも活動見学大歓迎です、愉快な先輩方がたくさんいます！！みなさんもいっしょに科学を楽しみましょう！！！
+        </p>
+        <hr style="border: 0; border-top: 1px solid #eee; width: 100%; margin: 40px 0;">
+        <div style="font-size: 0.75rem; color: #888; margin-bottom: 15px;">顧問</div>
+        <div style="display: flex; justify-content: center; gap: 30px; font-size: 0.95rem;">
+            <span>小田桐 先生</span><span>名取 先生</span><span>榊場 先生</span>
+        </div>
+    </section>
+
+    <footer>© 2026 Koryo Science Club</footer>
+</div>
+
+<script>
+    // Firebase設定 (あなたのURLに書き換えてください)
+    const firebaseConfig = { databaseURL: "https://chikuwa-1e064-default-rtdb.firebaseio.com/" };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    window.onload = () => {
+        document.querySelectorAll('.card').forEach((card, i) => {
+            setTimeout(() => card.classList.add('show'), i * 400);
+        });
+        const visitsRef = database.ref('visits');
+        visitsRef.transaction((c) => (c || 0) + 1, (e, c, s) => {
+            if (!e) animateCounter(s.val());
+        });
+    };
+
+    function animateCounter(target) {
+        const counterEl = document.getElementById('counter');
+        let current = 0;
+        const timer = setInterval(() => {
+            current += Math.ceil(target / 50);
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+                document.getElementById('status').innerText = "同期完了";
+            }
+            counterEl.innerText = current.toString().padStart(3, '0');
+        }, 30);
+    }
+</script>
+</body>
+</html>
